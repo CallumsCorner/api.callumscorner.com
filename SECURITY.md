@@ -21,7 +21,7 @@ I'll acknowledge reports within 48 hours and keep you updated on any fix.
 
 ## Rewards
 
-Genuine security vulnerabilities that affect the live system will be rewarded with free donations to use on stream. The amount depends on severity - a critical auth bypass is worth more than a minor info leak.
+Genuine security vulnerabilities that affect the live system will be rewarded with free donations to use on stream - and also real money if it is severe enough. The amount depends on severity - a critical auth bypass is worth more than a minor info leak.
 
 Not eligible for rewards:
 - Issues only affecting this public repo (not production)
@@ -38,7 +38,7 @@ Not eligible for rewards:
 - Content filter bypasses
 - WebSocket security
 - Any way to access admin functionality without credentials
-- Data exposure beyond what's already public (donation messages shown on stream)
+- Data exposure beyond what's already public (For example, access to donation messages without a valid API key or session auth)
 
 ## What's Out of Scope
 
