@@ -1,0 +1,180 @@
+# Docker Compose for the complete donation system.
+# This defines all containers that run callumscorner.com services.
+# Currently only the API server source code is public - other services
+# (donate, admin, queue, overlay, home, rewind, refund) remain private for now.
+# However i do plan to make those source available in the future.
+#
+# NOTE: The file paths in this compose file won't work with this repo alone.
+# On the production server, all apps live under ./apps/ (e.g. ./apps/api, ./apps/donate).
+# This repo contains only the API source code, which corresponds to ./apps/api in production.
+#
+# The commented-out ports are intentional - no containers expose ports directly to the host.
+# All traffic goes through an nginx reverse proxy that connects via the donationNetwork
+# Docker bridge network. This keeps the origin server IP private and ensures all data
+# in transit is handled through the proxy with proper TLS termination.
+#
+# The static IP addresses (172.20.0.x) are assigned as a fallback, but nginx uses Docker's
+# built-in DNS resolution instead - e.g. proxy_pass http://api:3000 rather than the IP.
+
+
+services:
+  donate:
+    build:
+      context: ./apps/donate
+      args:
+        - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
+    environment:
+      - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
+#    ports:
+#      - "3001:3001"
+    restart: unless-stopped
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.10
+
+  admin:
+    build:
+      context: ./apps/admin
+#    ports:
+#      - "3002:3002"
+    restart: unless-stopped
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.11
+
+  queue:
+    build:
+      context: ./apps/queue
+#    ports:
+#      - "3003:3003"
+    restart: unless-stopped
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.12
+
+  overlay:
+    build:
+      context: ./apps/overlay
+#    ports:
+#      - "3004:3004"
+    restart: unless-stopped
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.13
+
+  api:
+    build:
+      context: ./apps/api
+#    ports:
+#      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.14
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ~/apiUploads/sounds:/app/public/uploads/sounds
+      - ~/apiUploads/soundboard:/app/public/soundboard
+    environment:
+      - NODE_ENV=production
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+      - PAYPAL_MODE=${PAYPAL_MODE}
+      - PAYPAL_RETURN_URL=${PAYPAL_RETURN_URL}
+      - PAYPAL_CANCEL_URL=${PAYPAL_CANCEL_URL}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - PAYMENT_PROCESSOR=${PAYMENT_PROCESSOR}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
+      - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
+      - TWITCH_BROADCASTER_CLIENT_ID=${TWITCH_BROADCASTER_CLIENT_ID}
+      - TWITCH_BROADCASTER_CLIENT_SECRET=${TWITCH_BROADCASTER_CLIENT_SECRET}
+      - TWITCH_BROADCASTER_ACCESS_TOKEN=${TWITCH_BROADCASTER_ACCESS_TOKEN}
+      - TWITCH_BROADCASTER_REFRESH_TOKEN=${TWITCH_BROADCASTER_REFRESH_TOKEN}
+      - TWITCH_CHANNEL_ID=${TWITCH_CHANNEL_ID}
+      - TWITCH_REDIRECT_URI=${TWITCH_REDIRECT_URI}
+      - TWITCH_ENCRYPTION_KEY=${TWITCH_ENCRYPTION_KEY}
+      - TWITCH_WEBHOOK_SECRET=${TWITCH_WEBHOOK_SECRET}
+      - TWITCH_WEBHOOK_URL=${TWITCH_WEBHOOK_URL}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+
+  refund:
+    build:
+      context: ./apps/refund
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+        donationNetwork:
+          ipv4_address: 172.20.0.16
+
+  home:
+    build:
+      context: ./apps/home
+      args:
+        - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
+    environment:
+      - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
+      - NEXT_PUBLIC_API_URL=https://api.callumscorner.com
+#    ports:
+#      - "3005:3005"
+    restart: unless-stopped
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.17
+
+  rewind:
+    build:
+      context: ./apps/rewind
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://api.callumscorner.com
+#    ports:
+#      - "3006:3006"
+    restart: unless-stopped
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.18
+
+  db:
+    image: mariadb:latest
+    container_name: donation-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - donation_db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql-optimizations.cnf:/etc/mysql/conf.d/optimizations.cnf
+    networks:
+      donationNetwork:
+        ipv4_address: 172.20.0.15
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  donation_db_data:
+    driver: local
+
+networks:
+  donationNetwork:
+    external: true
