@@ -58,7 +58,7 @@ module.exports = async (req, res) => {
 
   } catch (error) {
     console.error('Error processing webhook:', error);
-    return res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    return res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 };
 

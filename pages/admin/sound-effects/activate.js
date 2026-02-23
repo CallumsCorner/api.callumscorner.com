@@ -27,7 +27,7 @@ async function handler(req, res) {
     });
   } catch (error) {
     console.error('Activate sound effect error:', error);
-    res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 }
 

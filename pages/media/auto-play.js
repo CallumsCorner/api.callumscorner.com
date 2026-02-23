@@ -51,7 +51,7 @@ async function triggerNextMedia() {
     } catch (clearError) {
       console.error('Failed to clear media flags after error:', clearError);
     }
-    return { success: false, message: 'Internal server error. Contact kernelscorner on discord' };
+    return { success: false, message: 'Internal server error. Contact MattFromTheCorner on discord' };
   }
 }
 
@@ -66,7 +66,7 @@ async function handler(req, res) {
     res.status(200).json(result);
   } else {
     // For the endpoint, we send 200 for "nothing to do" cases, but 500 for actual errors
-    if (result.message === 'Internal server error. Contact kernelscorner on discord') {
+    if (result.message === 'Internal server error. Contact MattFromTheCorner on discord') {
       res.status(500).json({ error: result.message });
     } else {
       res.status(200).json({ message: result.message });

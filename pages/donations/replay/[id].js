@@ -30,8 +30,14 @@ async function handler(req, res) {
       name: donation.name,
       amount: donation.amount,
       message: donation.message,
+      originalMessage: donation.originalMessage || donation.message,
+      originalName: donation.originalName || donation.name,
       payer_id: donation.payer_id || null,
-      is_replay: true
+      is_replay: true,
+      filter_matched_words: donation.filter_matched_words || null,
+      name_was_filtered: donation.name_was_filtered || false,
+      message_was_filtered: donation.message_was_filtered || false,
+      filter_reasoning: donation.filter_reasoning || null
     });
 
     // Notify overlay that the queue has been updated
@@ -46,7 +52,7 @@ async function handler(req, res) {
     res.status(200).json({ success: true, message: 'Donation added to replay queue.' });
   } catch (error) {
     console.error('Replay error:', error);
-    res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 }
 

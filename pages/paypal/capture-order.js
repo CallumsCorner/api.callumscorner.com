@@ -74,7 +74,7 @@ async function handler(req, res) {
       const banCheck = await db.query('SELECT id FROM BannedUsers WHERE payer_id = ?', [payerId]);
       if (banCheck.length > 0) {
         return res.status(403).json({
-          error: 'This account is banned from making donations. Your payment was ignored, and your transaction was not completed. Contact Callum or "kernelscorner" on Discord if you think this is a mistake',
+          error: 'This account is banned from making donations. Your payment was ignored, and your transaction was not completed. Contact Callum or "MattFromTheCorner" on Discord if you think this is a mistake',
           code: 'USER_BANNED'
         });
       }

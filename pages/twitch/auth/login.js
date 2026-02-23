@@ -23,7 +23,7 @@ async function handler(req, res) {
       console.error('twitch oauth not properly configured.');
       return res.status(500).json({
         error: 'Twitch integration not configured',
-        message: 'Server configuration error. Please contact kernelscorner on discord.'
+        message: 'Server configuration error. Please contact MattFromTheCorner on discord.'
       });
     }
 

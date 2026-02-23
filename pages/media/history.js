@@ -35,7 +35,7 @@ async function handler(req, res) {
     res.status(200).json(responseData);
   } catch (error) {
     console.error('Get media history error:', error);
-    res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 }
 

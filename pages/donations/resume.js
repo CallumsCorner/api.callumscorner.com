@@ -41,7 +41,7 @@ async function handler(req, res) {
     res.status(200).json({ success: true, message: 'Donation alerts resumed' });
   } catch (error) {
     console.error('Resume error:', error);
-    res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 }
 

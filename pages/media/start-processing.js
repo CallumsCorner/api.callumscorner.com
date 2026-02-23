@@ -73,7 +73,7 @@ async function handler(req, res) {
     res.status(200).json({ success: true, message: 'Media processing started' });
   } catch (error) {
     console.error('Start media processing error:', error);
-    res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 }
 

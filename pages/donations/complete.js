@@ -54,7 +54,11 @@ async function handler(req, res) {
       originalMessage: donation.originalMessage || cleanMessage,
       originalName: donation.originalName || cleanName,
       is_replay: isReplay,
-      payer_id: donation.payer_id || null
+      payer_id: donation.payer_id || null,
+      filter_matched_words: donation.filter_matched_words || null,
+      name_was_filtered: donation.name_was_filtered || false,
+      message_was_filtered: donation.message_was_filtered || false,
+      filter_reasoning: donation.filter_reasoning || null
     });
     
     // Remove from queue
@@ -77,7 +81,7 @@ async function handler(req, res) {
     });
   } catch (error) {
     console.error('Complete donation error:', error);
-    res.status(500).json({ error: 'Internal server error. Contact kernelscorner on discord' });
+    res.status(500).json({ error: 'Internal server error. Contact MattFromTheCorner on discord' });
   }
 }
 

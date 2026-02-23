@@ -69,13 +69,25 @@ async function handler(req, res) {
 
             await db.addDonationToLeaderboard(nameFilterResult.filtered, donationData.amount);
 
+            const allMatchedWords = [
+              ...(nameFilterResult.matchedWords || []),
+              ...(messageFilterResult.matchedWords || [])
+            ];
+            const allReasoning = [nameFilterResult.reasoning, messageFilterResult.reasoning].filter(Boolean).join(' | ');
+
             await db.addDonationToQueue({
               order_id: session.id,
               name: nameFilterResult.filtered,
               amount: donationData.amount,
               message: messageFilterResult.filtered,
               originalMessage: donationData.message,
-              is_replay: false
+              originalName: donationData.name,
+              payer_id: payerId,
+              is_replay: false,
+              filter_matched_words: allMatchedWords.length > 0 ? JSON.stringify(allMatchedWords) : null,
+              name_was_filtered: nameFilterResult.wasFiltered || false,
+              message_was_filtered: messageFilterResult.wasFiltered || false,
+              filter_reasoning: allReasoning || null
             });
 
             let mediaAdded = false;
