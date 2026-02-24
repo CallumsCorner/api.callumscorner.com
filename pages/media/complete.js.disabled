@@ -1,0 +1,7 @@
+This WAS a route that was active on the main production server. It was an old route that was used when the system was initially created. It was replaced by a start/finish processing loop, that is lead by the Overlay.
+
+This route had no authentication and would move the donation from the Queue to the History table. The effect of this wouldn't be visible on stream as the route does not tell the overlay through the WebSocket that the queue has been updated, so the dono does not disappear from stream.
+
+If a donation was currently marked as processing, this route would return the Donor name, the donation amount AND the order_id of the transaction, which should be behind authentication.
+
+Massive big ups to "Ace Rimmer" for letting me know of this. They were awarded £50 of dono credit on 23/02/2026.

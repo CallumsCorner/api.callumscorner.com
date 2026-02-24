@@ -1,5 +1,6 @@
 const db = require('../../lib/database'); 
 const cors = require('../../lib/cors'); 
+const { overlayOnly } = require('../../lib/auth');
 
 async function triggerNextMedia() {
   try {
@@ -74,5 +75,5 @@ async function handler(req, res) {
   }
 }
 
-module.exports = cors(handler);
+module.exports = cors(overlayOnly(handler));
 module.exports.triggerNextMedia = triggerNextMedia;
