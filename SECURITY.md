@@ -10,7 +10,7 @@ The production server may be ahead of what's published here. If you find somethi
 
 If you find a security issue, please report it responsibly:
 
-**Email:** matt@callumscorner.com
+**Email:** security@callumscorner.com
 
 Include:
 - Description of the vulnerability
@@ -24,12 +24,12 @@ I'll acknowledge reports within 48 hours and keep you updated on any fix.
 Genuine security vulnerabilities that affect the live system will be rewarded with free donations to use on stream - and also real money if it is severe enough. The amount depends on severity - a critical auth bypass is worth more than a minor info leak.
 
 Not eligible for rewards:
-- Issues only affecting this public repo (not production)
 - Social engineering or phishing attacks
 - Denial of service attacks
 - Automated scanner output without proof of concept
 - Issues requiring physical access
-- AI-generated vulnerability reports without real analysis
+
+^ However please do still let me know about any of these!
 
 ## What's In Scope
 
