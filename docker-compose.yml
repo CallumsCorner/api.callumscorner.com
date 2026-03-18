@@ -19,50 +19,53 @@
 
 services:
   donate:
+    container_name: donate
+    image: callumscorner/donate
     build:
       context: ./apps/donate
-      args:
-        - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
-    environment:
-      - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
-#    ports:
-#      - "3001:3001"
     restart: unless-stopped
     networks:
       donationNetwork:
         ipv4_address: 172.20.0.10
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://donate:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   admin:
+    container_name: admin
+    image: callumscorner/admin
     build:
       context: ./apps/admin
-#    ports:
-#      - "3002:3002"
     restart: unless-stopped
     networks:
       donationNetwork:
         ipv4_address: 172.20.0.11
-
-  queue:
-    build:
-      context: ./apps/queue
-#    ports:
-#      - "3003:3003"
-    restart: unless-stopped
-    networks:
-      donationNetwork:
-        ipv4_address: 172.20.0.12
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://admin:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   overlay:
+    container_name: overlay
+    image: callumscorner/overlay
     build:
       context: ./apps/overlay
-#    ports:
-#      - "3004:3004"
     restart: unless-stopped
     networks:
       donationNetwork:
         ipv4_address: 172.20.0.13
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://overlay:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   api:
+    container_name: api
+    image: callumscorner/api
     build:
       context: ./apps/api
 #    ports:
@@ -72,11 +75,17 @@ services:
     networks:
       donationNetwork:
         ipv4_address: 172.20.0.14
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://api:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ~/apiUploads/sounds:/app/public/uploads/sounds
       - ~/apiUploads/soundboard:/app/public/soundboard
+      - /proc/uptime:/host/uptime:ro
     environment:
       - NODE_ENV=production
       - DB_USER=${DB_USER}
@@ -110,46 +119,38 @@ services:
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
 
   refund:
+    container_name: refund
+    image: callumscorner/refund
     build:
       context: ./apps/refund
-    environment:
-      - NODE_ENV=production
     depends_on:
       - api
     restart: unless-stopped
     networks:
         donationNetwork:
           ipv4_address: 172.20.0.16
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://refund:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
-  home:
+  bot:
+    container_name: BotFromTheCorner
+    image: callumscorner/bot
     build:
-      context: ./apps/home
-      args:
-        - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
-    environment:
-      - NEXT_PUBLIC_PAYMENT_PROCESSOR=${NEXT_PUBLIC_PAYMENT_PROCESSOR}
-      - NEXT_PUBLIC_API_URL=https://api.callumscorner.com
-#    ports:
-#      - "3005:3005"
+      context: ./apps/bot
     restart: unless-stopped
     networks:
-      donationNetwork:
-        ipv4_address: 172.20.0.17
-
-  rewind:
-    build:
-      context: ./apps/rewind
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://api.callumscorner.com
-#    ports:
-#      - "3006:3006"
-    restart: unless-stopped
-    networks:
-      donationNetwork:
-        ipv4_address: 172.20.0.18
+      - donationNetwork
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://bot:3005/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   db:
+    container_name: database
     image: mariadb:latest
     container_name: donation-db
     environment:
