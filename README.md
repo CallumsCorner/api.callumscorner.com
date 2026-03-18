@@ -39,20 +39,6 @@ As a result, existing links and integrations pointing at `donate.callumscorner.c
 
 ---
 
-## Planned Improvements
-
-### TTS Pre-generation
-
-Currently, TTS audio is generated on-demand when the overlay plays each donation. This causes a noticeable delay - sometimes AWS Polly takes a few seconds to respond, so the donation message appears on screen before the voice starts reading it out.
-
-The fix: generate TTS audio as soon as the donation enters the queue, not when it's played. The API stores the audio file and the overlay just fetches the pre-generated file. No waiting.
-
-### TTS Caching
-
-If someone donates the same message multiple times (e.g. "Jezzaman tipped £2.22. Niceword Niceword Niceword"), there's no point regenerating the same audio. The plan is to hash the TTS text and cache the resulting audio server-side. Same text = same hash = return cached file instead of hitting AWS again.
-
----
-
 ## Content Moderation
 The API uses a hybrid content filtering system (`lib/ai-filter.js`) that combines:
 
